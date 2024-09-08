@@ -1,0 +1,101 @@
+{% extends 'assignments/base.html' %}
+{% block hws_active %}active{% endblock %}
+
+{% load tag %}
+
+{% block title %}{{ task.task_title }}{% endblock %}
+{% block body %}
+<div class="container-fluid task-container">
+
+    <div class="row">
+
+        <!-- Left Task Info -->
+        <div class="col-sm-4 col-md-3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <a href="{% url 'assignments:detail' task.id %}">
+                        <img src="/media/hwicon.png" class="img-responsive">
+                    </a>
+                    <h2>{{ task.course }}</h2>
+                    <h4>{{ task.task_title }}</h4>
+                    <small>{{ task.description }}</small>
+                </div>
+                <div class="panel-footer">
+                    <a class="btn btn-warning btn-sm" href="{% url 'assignments:task-update' task.id %}" role="button"><span class="glyphicon glyphicon-refresh" aria-hidden="true"> 修改</span></a>&nbsp
+                    <form action="{% url 'assignments:task-delete' task.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="task_id" value="{{ task.id }}" />
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <span class="glyphicon glyphicon-trash"> 删除</span>
+                        </button>&nbsp
+                    </form>
+                    <a class="btn btn-primary btn-sm" href="{% url 'assignments:plagdetec' task.id %}" role="button"><span class="glyphicon glyphicon-search" aria-hidden="true"> 查重</span></a>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Right Homework Info -->
+        <div class="col-sm-8 col-md-9">
+
+            <ul class="nav nav-pills" style="margin-bottom: 10px;">
+                <li role="presentation" class="active"><a href="{% url 'assignments:detail' task.id %}">该任务下的所有文件</a></li>
+                <li role="presentation"><a href="{% url 'assignments:hw-add' task.id %}">提交新的作业文件</a></li>
+            </ul>
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <h3>该任务下的所有文件</h3>
+
+                    {% if error_message %}
+                        <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>文件名</th>
+                            <th>作者</th>
+                            <th>句数</th>
+                            <th>动作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for hw in task.hw.all %}
+                            <tr>
+                                <td>
+                                    {{ hw.hw_title }}
+                                </td>
+                                <td>
+                                    {{ hw.writer }}
+                                </td>
+                                <td>
+                                    {{ hw.hw_content|get_sentencecount }}
+                                </td>
+                                <td>
+                                    <a class="btn btn-success btn-xs" href="{% url 'assignments:hw_detail' hw.id %}" role="button"><span class="glyphicon glyphicon-search" aria-hidden="true"> 查看详情</span></a>
+
+                                    <form action="{% url 'assignments:hw-delete' task.id hw.id %}" method="post" style="display: inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="hw_id" value="{{ hw.id }}" />
+                                        <button type="submit" class="btn btn-danger btn-xs">
+                                            <span class="glyphicon glyphicon-remove"></span>&nbsp; 删除
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

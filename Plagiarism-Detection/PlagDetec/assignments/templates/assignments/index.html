@@ -1,0 +1,66 @@
+{% extends 'assignments/base.html' %}
+
+{% block tasks_active %}active{% endblock %}
+{% block title %}作业任务{% endblock %}
+{% block body %}
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+
+    <div class="container-fluid task-container">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <h2>作业任务如下:</h2>
+        </div>
+
+        {% if all_tasks %}
+            {% for task in all_tasks %}
+                <div class="col-sm-4 col-lg-2">
+                    <div class="thumbnail">
+                        <a href="{% url 'assignments:detail' task.id %}">
+                            <img src="../media/hwicon.png" class="img-responsive">
+                        </a>
+                        <div class="caption">
+                            <h3>{{ task.course }}</h3>
+                            <h4>{{ task.task_title }}</h4>
+
+                            <!-- View Details -->
+                            <a href="{% url 'assignments:detail' task.id %}" class="btn btn-primary btn-sm" role="button">查看详情</a>
+
+                            <form action="{% url 'assignments:task-delete' task.id %}" method="post" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="task_id" value="{{ task.id }}" />
+                                <button type="submit" class="btn btn-default btn-sm">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+                {% cycle '' '' '' '' '' '<div class="clearfix visible-lg"></div>' %}
+            {% endfor %}
+        {% else %}
+            <div class="col-sm-12">
+                <br>
+                <a href="{% url 'assignments:task-add' %}">
+                    <button type="button" class="btn btn-success">
+                        <span class="glyphicon glyphicon-plus"></span>&nbsp;添加新任务
+                    </button>
+                </a>
+            </div>
+        {% endif %}
+
+    </div>
+
+    </div>
+
+{% endif %}
+
+{% endblock %}

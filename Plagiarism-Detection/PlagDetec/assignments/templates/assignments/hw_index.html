@@ -1,0 +1,60 @@
+{% extends 'assignments/base.html' %}
+
+{% block hws_active %}active{% endblock %}
+{% block title %}作业文件{% endblock %}
+
+{% block body %}
+
+<div class="container-fluid task-container">
+<div class="row">
+    <div class="col-sm-12">
+
+            <div class="panel panel-default">
+                <div class="panel-body">
+
+                    <h3>所有文件</h3>
+
+                    {% if error_message %}
+                        <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>文件名</th>
+                            <th>作者</th>
+                            <th>所属任务</th>
+                            <th>动作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for hw in hws %}
+                            <tr>
+                                <td>
+                                    {{ hw.hw_title }}
+                                </td>
+                                <td>
+                                    {{ hw.writer }}
+                                </td>
+                                <td>
+                                    {{ hw.task }}
+                                </td>
+                                <td>
+                                    <a class="btn btn-success btn-xs" href="{% url 'assignments:hw_detail' hw.id %}" role="button"><span class="glyphicon glyphicon-search" aria-hidden="true">查看文件详情</span></a>
+                                    <a class="btn btn-primary btn-xs" href="{% url 'assignments:detail' hw.task.id %}" role="button"><span class="glyphicon glyphicon-search" aria-hidden="true">查看所属任务详情</span></a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

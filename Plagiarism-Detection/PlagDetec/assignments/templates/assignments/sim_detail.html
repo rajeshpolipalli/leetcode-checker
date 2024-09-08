@@ -1,0 +1,107 @@
+{% extends 'assignments/base.html' %}
+
+{% block hws_active %}active{% endblock %}
+
+{% load tag %}
+
+{% block body %}
+<div class="container-fluid task-container">
+    <div class="row">
+        <div class="col col-sm-6 align-items-center">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{{ hw1.hw_title }}</h3>
+                </div>
+                <div class="panel-body">
+                    {{ hw1.hw_content|linebreaks }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col col-sm-6 align-items-center">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{{ hw2.hw_title }}</h3>
+                </div>
+                <div class="panel-body">
+                    {{ hw2.hw_content|linebreaks }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col col-sm-12 align-items-center">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <h3 class="panel-title">重复标注</h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table">
+                    <th class="text-center">文档“{{ hw1.hw_title }}”中的句子</th><th class="text-center">文档“{{ hw2.hw_title }}”中的句子</th>
+                    {% get_sentence_list hw1.hw_content as sentence_list1 %}
+                    {% get_sentence_list hw2.hw_content as sentence_list2 %}
+
+                    {% get_stripped_sentence_list sentence_list1 as stripped_sentence_list1 %}
+                    {% get_stripped_sentence_list sentence_list2 as stripped_sentence_list2 %}
+
+                    {% get_clean_list stripped_sentence_list1 '' as clean_sentence_list1 %}
+                    {% get_clean_list stripped_sentence_list2 '' as clean_sentence_list2 %}
+
+
+{#                    <tr><td>{{ clean_sentence_list1 }}</td>#}
+{#                        <td>{{ clean_sentence_list2 }}</td>#}
+{#                    </tr>#}
+
+
+                    {% for sentence1 in clean_sentence_list1 %}
+{#                        {{ sentence|linebreaks }}#}
+                        {% for sentence2 in clean_sentence_list2 %}
+                            {% get_keywords sentence1 as keywords1 %}
+                            {% get_keywords sentence2 as keywords2 %}
+
+                            {% get_matchwords sentence2 keywords1 as match_words %}
+
+                            {% get_clean_list match_words '，' '、' '“' '”' '：' '（' '）' '的' '是' '在' '有' '也' '以' '\u3000' '\n' as clean_match_words %}
+                            {% get_clean_list keywords1 '，' '、' '“' '”' '：' '（' '）' '的' '是' '在' '有' '也' '以' '\u3000' '\n' as clean_keywords1 %}
+                            {% get_clean_list keywords2 '，' '、' '“' '”' '：' '（' '）' '的' '是' '在' '有' '也' '以' '\u3000' '\n' as clean_keywords2 %}
+
+{#                            {{ match_words|list_rem: "'，', '、', '“', '”', '：', '（', '）', '的', '是', '在', '有', '也', '以', '\u3000', '\n'" }}#}
+{#                            {{ keywords1|list_rem: "'，', '、', '“', '”', '：', '（', '）', '的', '是', '在', '有', '也', '以', '\u3000', '\n'" }}#}
+{#                            {{ keywords2|list_rem: "'，', '、', '“', '”', '：', '（', '）', '的', '是', '在', '有', '也', '以', '\u3000', '\n'" }}#}
+
+                            {% get_len clean_match_words as match_len %}
+                            {% get_len clean_keywords1 as sentence_len1 %}
+                            {% get_len clean_keywords2 as sentence_len2 %}
+
+                            {% get_ratio match_len sentence_len1 as match_ratio1 %}
+                            {% get_ratio match_len sentence_len2 as match_ratio2 %}
+
+                            {% if match_ratio1 > 0.35 and match_ratio1 > 0.35 %}
+                                <tr><td><mark>{{ sentence1 }}</mark></td>
+                                    <td><code>{{ sentence2 }}</code></td>
+{#                                    <td>{{ match_words }}</td>#}
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+
+
+
+
+
+
+
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+{#    <div class="col col-sm-10 align-items-center">#}
+{#        <h1>Homework Title: {{ hw.hw_title }}</h1>#}
+{#        <h4>Content: <br>{{ hw.hw_content|linebreaks }}</h4>#}
+{#    </div>#}
+</div>
+{% endblock %}

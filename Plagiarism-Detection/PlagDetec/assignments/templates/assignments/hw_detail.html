@@ -1,0 +1,38 @@
+{% extends 'assignments/base.html' %}
+
+{% block hws_active %}active{% endblock %}
+
+{% load tag %}
+
+{% block body %}
+<div class="container-fluid task-container">
+    <div class="row">
+        <div class="col col-sm-9 align-items-center">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">{{ hw.hw_title }}</h3>
+                </div>
+                <div class="panel-body">
+                    {{ hw.hw_content|linebreaks }}
+                </div>
+            </div>
+        </div>
+
+        <div class="col col-sm-3 align-items-center">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <h3 class="panel-title">统计信息</h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table">
+                        <th>作者</th><th>字符数</th><th>句数</th>
+                        <tr><td>{{ hw.writer }}</td><td>{{ hw.hw_content|get_charcount }}</td><td>{{ hw.hw_content|get_sentencecount }}</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

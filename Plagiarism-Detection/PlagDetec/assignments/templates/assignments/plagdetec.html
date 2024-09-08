@@ -1,0 +1,149 @@
+{% extends 'assignments/base.html' %}
+{% block hws_active %}active{% endblock %}
+{% load tag %}
+
+{% block title %}{{ task.task_title }}{% endblock %}
+{% block body %}
+
+
+<div class="container-fluid task-container">
+<div class="row">
+    <div class="col-sm-2">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <a href="{% url 'assignments:detail' task.id %}">
+                    <img src="/media/hwicon.png" class="img-responsive">
+                </a>
+                <h2>{{ task.course }}</h2>
+                <h4>{{ task.task_title }}</h4>
+                <small>{{ task.description }}</small>
+            </div>
+        </div>
+
+
+{#        <div class="panel panel-warning">#}
+{#            <div class="panel-heading">#}
+{#                <h3 class="panel-title">相似文件</h3>#}
+{#            </div>#}
+{#            <div class="panel-body">#}
+{##}
+{#                <h2>{{ task.course }}</h2>#}
+{#                <h4>{{ task.task_title }}</h4>#}
+{#                <small>{{ task.description }}</small>#}
+{#            </div>#}
+{#        </div>#}
+    </div>
+
+
+    <div class="col-sm-10">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">相似度计算日志</h3>
+            </div>
+
+            <div class="panel-body">
+{#                <h4>说明：Simhash所得的Hamming距离越小/余弦相似度越趋近于1，两文本间相似度越高。</h4>#}
+                <table class="table">
+                    <th>比较项</th><th>Simhash相似度</th><th>余弦相似度</th>
+                    <th>Jaccard相似度</th><th>Sørensen–Dice相似度</th>
+                    <th>综合相似度</th><th>推荐动作</th>
+
+                {% for i in i_range %}
+                    {% for j in j_range %}
+                        {% if i < j %}
+
+                            {% get_seg_list i hws as seg_list1 %}
+                            {% get_seg_list j hws as seg_list2 %}
+                            {% get_words seg_list1 seg_list2 as words %}
+                            {% get_zero_list words as zero_list %}
+                            {% get_tf_dict words zero_list as tf_dict1 %}
+                            {% get_tf_dict words zero_list as tf_dict2 %}
+
+                            {% for word in seg_list1 %}
+                                {% if word in words %}
+                                    {% tf_increment tf_dict1 word as non %}
+                                {% endif %}
+                            {% endfor %}
+                            {% for word in seg_list2 %}
+                                {% if word in words %}
+                                    {% tf_increment tf_dict2 word as non %}
+                                {% endif %}
+                            {% endfor %}
+
+                            {% get_vec tf_dict1 as vec1 %}
+                            {% get_vec tf_dict2 as vec2 %}
+
+
+                            {% get_cos_sim vec1 vec2 as cos_sim %}
+{#                            {% get_eu_sim vec1 vec2 as eu_sim %}#}
+{#                            {% get_man_sim vec1 vec2 as man_sim %}#}
+                            {% get_jac_sim vec1 vec2 as jac_sim %}
+                            {% get_sd_sim vec1 vec2 as sd_sim %}
+
+
+                            {% get_hw_content i hws as hw_content1 %}
+                            {% get_hw_content j hws as hw_content2 %}
+                            {% init_simhash hw_content1 as simhash1 %}
+                            {% init_simhash hw_content2 as simhash2 %}
+                            {% get_hamming_dis simhash1 simhash2 as ham %}
+
+                            {% get_hw_id i hws as id1 %}
+                            {% get_hw_id j hws as id2 %}
+
+
+
+                            <tr><td>“{% get_hw_title i hws %}” & “{% get_hw_title j hws %}”</td>
+                                <td>{{ ham }}</td>
+                                <td>{{ cos_sim|sim_format }}</td>
+                                <td>{{ jac_sim|sim_format }}</td>
+                                <td>{{ sd_sim|sim_format }}</td>
+                                {% add_sim ham|add:-64|divide:-64|multiply:0.25 cos_sim|multiply:0.25 jac_sim|multiply:0.25 sd_sim|multiply:0.25 as sim %}
+                                <td>{{ sim }}</td>
+
+                                {% if sim|percent2float > 0.6 %}
+                                    <td>
+                                        <a class="btn btn-success btn-xs" href="{% url 'assignments:sim_detail' id1 id2 %}" role="button"><span class="glyphicon glyphicon-search" aria-hidden="true">查看重复部分</span></a>
+                                    </td>
+                                {% endif %}
+{#                                <td>#}
+{#                                    <a class="btn btn-success btn-xs" href="#" role="button"><span class="glyphicon glyphicon-search" aria-hidden="true">查看详情</span></a>#}
+{#                                </td>#}
+{#                                <td>{{ jac_sim }}</td>#}
+{#                                <td>{{ sd_sim }}</td>#}
+    {#                            <td>{{ eu_sim }}</td>#}
+    {#                            <td>{{ man_sim }}</td>#}
+                            </tr>
+
+
+    {#                        <p>作业“{% get_hw_title i hws %}”和作业“{% get_hw_title j hws %}”间的<code>余弦相似度</code>为: {{ cos_sim }}#}
+    {#                           <br>作业“{% get_hw_title i hws %}”和作业“{% get_hw_title j hws %}”间由<code>Simhash算法</code>得到的汉明距离为: {{ ham }}#}
+    {#                           <br>作业“{% get_hw_title i hws %}”和作业“{% get_hw_title j hws %}”间的<code>欧几里得距离</code>为: {{ eu_sim }}#}
+    {#                           <br>作业“{% get_hw_title i hws %}”和作业“{% get_hw_title j hws %}”间的<code>曼哈顿距离</code>为: {{ man_sim }}#}
+    {#                           <br>作业“{% get_hw_title i hws %}”和作业“{% get_hw_title j hws %}”间的<code>Jaccard相似度</code>为: {{ jac_sim }}#}
+    {#                           <br>作业“{% get_hw_title i hws %}”和作业“{% get_hw_title j hws %}”间的<code>Sørensen–Dice相似度</code>: {{ sd_sim }}#}
+    {#                        </p>#}
+
+                        {% else %}
+
+                        {% endif %}
+
+                    {% endfor %}
+                {% endfor %}
+
+                </table>
+
+
+            </div>
+{#            <div class="panel-footer">#}
+{#                {% for index in index_list %}#}
+{#                    <h3>{{ index }}</h3>#}
+{#                {% endfor %}#}
+{#            </div>#}
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+{% endblock %}
